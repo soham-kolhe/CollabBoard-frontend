@@ -1,9 +1,11 @@
-import Login from "./components/Login";
+// import Login from "./components/Login";
+import Whiteboard from "./components/Whiteboard";
 
 function App() {
   return (
     <>
-    <Login />
+    {/* <Login /> */}
+    <Whiteboard />
     </>
   );
 }
