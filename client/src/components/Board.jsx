@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 
-
 const Board = ({ canvasRef, tool, color, lineWidth, socket }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
@@ -14,72 +13,85 @@ const Board = ({ canvasRef, tool, color, lineWidth, socket }) => {
 
   const textAreaRef = useRef(null);
 
-//   useEffect(() => {
-//   const canvas = canvasRef.current;
-//   const ctx = canvas.getContext('2d');
-
-//   const setCanvasSize = () => {
-//     // 1. Get exact window dimensions
-//     const width = window.innerWidth;
-//     const height = window.innerHeight;
-
-//     // 2. Save current content to avoid losing it on resize
-//     const tempImage = canvas.toDataURL();
-
-//     // 3. Set internal canvas resolution
-//     canvas.width = width;
-//     canvas.height = height;
-
-//     // 4. Reset context properties (they get lost on resize)
-//     ctx.fillStyle = "white";
-//     ctx.fillRect(0, 0, canvas.width, canvas.height);
-//     ctx.lineCap = 'round';
-//     ctx.lineJoin = 'round';
-
-//     // 5. Restore content
-//     const img = new Image();
-//     img.src = tempImage;
-//     img.onload = () => ctx.drawImage(img, 0, 0);
-//   };
-
-//   setCanvasSize();
-//   window.addEventListener('resize', setCanvasSize);
-  
-//   return () => window.removeEventListener('resize', setCanvasSize);
-// }, [canvasRef]);
-
   useEffect(() => {
   const canvas = canvasRef.current;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
-  socket.on('draw', (data) => {
-    // We must deconstruct every property to mirror the sender's brush
-    const { x, y, prevX, prevY, tool, color, lineWidth } = data;
-    
-    ctx.beginPath();
-    ctx.lineWidth = lineWidth;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+  // Set size once without using State
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-    if (tool === 'eraser') {
-      ctx.globalCompositeOperation = 'destination-out'; // True erasing
-      // If using the white-background hack: ctx.strokeStyle = 'white';
-    } else {
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = color;
-    }
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  
+  // Do NOT add 'tool' or 'lineWidth' to this dependency array
+}, [canvasRef]);
 
-    ctx.moveTo(prevX, prevY);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    ctx.closePath();
-    
-    // Reset to default for the local user
-    ctx.globalCompositeOperation = 'source-over';
-  });
+  // useEffect(() => {
+  //   const canvas = canvasRef.current;
+  //   const ctx = canvas.getContext("2d");
 
-  return () => socket.off('draw');
-}, [canvasRef, socket]);
+  //   // Dimensions ko direct set karein, state mein save na karein
+  //   canvas.width = window.innerWidth;
+  //   canvas.height = window.innerHeight;
+
+  //   ctx.fillStyle = "white";
+  //   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  //   ctx.lineCap = "round";
+  //   ctx.lineJoin = "round";
+
+  //   // Agar resize handle karna hai toh aise karein bina warning ke
+  //   const handleResize = () => {
+  //     const tempImage = canvas.toDataURL();
+  //     canvas.width = window.innerWidth;
+  //     canvas.height = window.innerHeight;
+  //     ctx.fillStyle = "white";
+  //     ctx.fillRect(0, 0, canvas.width, canvas.height);
+  //     ctx.lineCap = "round";
+  //     ctx.lineJoin = "round";
+  //     const img = new Image();
+  //     img.src = tempImage;
+  //     img.onload = () => ctx.drawImage(img, 0, 0);
+  //   };
+
+  //   window.addEventListener("resize", handleResize);
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, [canvasRef]);
+
+  // useEffect(() => {
+  //   const canvas = canvasRef.current;
+  //   const ctx = canvas.getContext("2d");
+
+  //   socket.on("draw", (data) => {
+  //     // We must deconstruct every property to mirror the sender's brush
+  //     const { x, y, prevX, prevY, tool, color, lineWidth } = data;
+
+  //     ctx.beginPath();
+  //     ctx.lineWidth = lineWidth;
+  //     ctx.lineCap = "round";
+  //     ctx.lineJoin = "round";
+
+  //     if (tool === "eraser") {
+  //       ctx.globalCompositeOperation = "destination-out"; // True erasing
+  //       // If using the white-background hack: ctx.strokeStyle = 'white';
+  //     } else {
+  //       ctx.globalCompositeOperation = "source-over";
+  //       ctx.strokeStyle = color;
+  //     }
+
+  //     ctx.moveTo(prevX, prevY);
+  //     ctx.lineTo(x, y);
+  //     ctx.stroke();
+  //     ctx.closePath();
+
+  //     // Reset to default for the local user
+  //     ctx.globalCompositeOperation = "source-over";
+  //   });
+
+  //   return () => socket.off("draw");
+  // }, [canvasRef, socket]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -148,7 +160,7 @@ const Board = ({ canvasRef, tool, color, lineWidth, socket }) => {
     if (tool === "text") {
       // If we are already typing, we "bake" the old text first
       if (textState.isTyping && textState.text.length > 0) {
-        const ctx = canvasRef.current.getContext("2d");
+        const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true });
         ctx.font = `${lineWidth * 5}px Arial`;
         ctx.fillStyle = color;
         ctx.fillText(textState.text, textState.x, textState.y);
@@ -167,7 +179,7 @@ const Board = ({ canvasRef, tool, color, lineWidth, socket }) => {
     // DRAWING LOGIC FOR OTHER TOOLS
     setIsDrawing(true);
     setStartPos({ x, y });
-    const ctx = canvasRef.current.getContext("2d");
+    const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true });
     setSnapshot(
       ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height)
     );

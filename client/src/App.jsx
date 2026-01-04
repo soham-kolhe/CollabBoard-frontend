@@ -3,12 +3,13 @@ import Toolbar from './components/Toolbar';
 import Board from './components/Board';
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:5001");
 
 function App() {
   const [tool, setTool] = useState('pencil');
   const [color, setColor] = useState('#000000');
   const [lineWidth, setLineWidth] = useState(4);
+  const [roomId] = useState("123");
   
   // Reference to the canvas to call clear methods
   const canvasRef = useRef(null);
@@ -57,6 +58,7 @@ function App() {
         color={color} 
         lineWidth={lineWidth} 
         socket={socket}
+        roomId={roomId}
       />
     </div>
   );
