@@ -25,6 +25,7 @@ export default function BoardRoom({ user }: BoardRoomProps) {
   const [myRole, setMyRole] = useState<'Admin' | 'User'>('User');
   const [copyLabel, setCopyLabel] = useState('Copy Room ID');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const sock = getSocket(user.token);
 
   useEffect(() => {
@@ -48,13 +49,27 @@ export default function BoardRoom({ user }: BoardRoomProps) {
       setMyRole(role);
     });
 
+    sock.on('admin-left', () => {
+      alert('The admin has left the board. You are being redirected to the dashboard.');
+      navigate('/');
+    });
+
+    sock.on('error', (msg: string) => {
+      console.error(msg);
+      alert(msg);
+      navigate('/');
+    });
+
     return () => {
+      sock.emit('leave-room', { roomId: boardId });
       sock.off('joined');
       sock.off('user_list');
       sock.off('permission-changed');
       sock.off('role-changed');
+      sock.off('admin-left');
+      sock.off('error');
     };
-  }, [boardId, user.userName, sock]);
+  }, [boardId, user.userName, sock, navigate]);
 
   const handleCopyLink = useCallback(() => {
     if (boardId) {
@@ -82,7 +97,7 @@ export default function BoardRoom({ user }: BoardRoomProps) {
       <header className="absolute top-0 left-0 right-0 z-[3000] flex items-center justify-between px-4 py-2 bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-sm">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => setShowLeaveDialog(true)}
             className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors text-sm font-medium"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -198,6 +213,38 @@ export default function BoardRoom({ user }: BoardRoomProps) {
           canDraw={canDraw}
         />
       </div>
+
+      {/* ─── Leave Confirmation Dialog ─────────────────────── */}
+      {showLeaveDialog && (
+        <div className="absolute inset-0 z-[4000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <h3 className="text-lg font-bold text-slate-800 mb-2">Leave Board?</h3>
+              <p className="text-sm text-slate-600">
+                Are you sure you want to leave this board? You can always rejoin later.
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowLeaveDialog(false)}
+                className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/50 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowLeaveDialog(false);
+                  if (boardId) sock.emit('leave-room', { roomId: boardId });
+                  navigate('/');
+                }}
+                className="px-4 py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors shadow-sm shadow-red-500/20"
+              >
+                Yes, Leave
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

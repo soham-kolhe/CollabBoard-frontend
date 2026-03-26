@@ -14,6 +14,7 @@ interface TldrawBoardProps {
 
 export default function TldrawBoard({ boardId, user, socket, usersInRoom, canDraw }: TldrawBoardProps) {
   const storeRef = useRef<ReturnType<typeof createTLStore> | null>(null);
+  const editorRef = useRef<any>(null);
   const isApplyingRemote = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -80,6 +81,7 @@ export default function TldrawBoard({ boardId, user, socket, usersInRoom, canDra
 
   // ─── Mount tldraw and subscribe to store changes ─────────────────
   const handleMount = useCallback((editor: any) => {
+    editorRef.current = editor;
     const store = editor.store;
     storeRef.current = store;
 
@@ -97,13 +99,15 @@ export default function TldrawBoard({ boardId, user, socket, usersInRoom, canDra
       scheduleStateSave(store);
     }, { source: 'user', scope: 'document' });
 
-    // Set editor to read-only if user cannot draw
-    if (!canDraw) {
-      editor.setCurrentTool('hand');
-    }
-
     return unsub;
-  }, [socket, boardId, canDraw, scheduleStateSave]);
+  }, [socket, boardId, scheduleStateSave]);
+
+  // ─── Update Draw Permission Dynamically ───────────────────────────
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.updateInstanceState({ isReadonly: !canDraw });
+    }
+  }, [canDraw]);
 
   return (
     <div className="absolute inset-0">
