@@ -13,6 +13,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  joinedBoards: [{
+    type: String,
+  }],
   createdAt: {
     type: Date,
     default: Date.now,

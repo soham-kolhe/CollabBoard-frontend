@@ -1,6 +1,7 @@
 import express from 'express';
 import { nanoid } from 'nanoid';
 import Board from '../models/Board.js';
+import User from '../models/User.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -11,7 +12,16 @@ router.use(requireAuth);
 // GET /api/boards — list boards owned by the authenticated user
 router.get('/', async (req, res) => {
   try {
-    const boards = await Board.find({ ownerId: req.user.id }).sort({ createdAt: -1 });
+    const userDoc = await User.findById(req.user.id);
+    const joinedIds = userDoc?.joinedBoards || [];
+
+    const boards = await Board.find({
+      $or: [
+        { ownerId: req.user.id },
+        { boardId: { $in: joinedIds } }
+      ]
+    }).sort({ createdAt: -1 });
+
     return res.json({ boards });
   } catch (err) {
     console.error('Fetch boards error:', err);
