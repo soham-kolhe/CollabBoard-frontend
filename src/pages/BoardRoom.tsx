@@ -12,7 +12,7 @@ let socket: Socket | null = null;
 
 function getSocket(token: string) {
   if (!socket) {
-    socket = io('http://localhost:5001', { auth: { token } });
+    socket = io(import.meta.env.VITE_BACKEND_URL, { auth: { token } });
   }
   return socket;
 }

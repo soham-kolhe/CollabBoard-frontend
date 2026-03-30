@@ -1,7 +1,9 @@
+/// <reference types="vite/client" />
 import axios from 'axios';
 import type { AuthResponse } from '../types';
 
-const BASE_URL = 'http://localhost:5001/api/auth';
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const BASE_URL = `${API_URL}/api/auth`;
 
 export async function loginApi(userName: string, password: string): Promise<AuthResponse> {
   const res = await axios.post(`${BASE_URL}/login`, { userName, password });
