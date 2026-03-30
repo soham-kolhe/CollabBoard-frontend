@@ -12,8 +12,7 @@ let socket: Socket | null = null;
 
 function getSocket(token: string) {
   if (!socket) {
-    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
-    socket = io(API_URL, { auth: { token } });
+    socket = io('http://localhost:5001', { auth: { token } });
   }
   return socket;
 }
