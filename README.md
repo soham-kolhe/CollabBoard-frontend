@@ -1,4 +1,4 @@
-# Collaborative Board - Frontend
+# CollabBoard - Frontend
 
 This repository contains the interactive React + TypeScript frontend for the Collaborative Board application. It provides a real-time drawing experience using tldraw, secure user authentication, and a dashboard for managing collaborative rooms.
 
@@ -83,7 +83,7 @@ graph LR
 > ### 💡 IMPORTANT / NOTES 
 > This repository contains the **Frontend App only**.<br>
 > The interactive **Node.js + Socket.io backend** can be found here:<br>
-> 👉 [Backend](https://github.com/soham-kolhe/collaborative-board-backend)
+> 👉 [Backend](https://github.com/soham-kolhe/CollabBoard-backend)
 
 ## ⚙️ Setup & Installation
 
