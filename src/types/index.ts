@@ -24,6 +24,7 @@ export interface Board {
   boardId: string;
   name: string;
   ownerId: string;
+  adminName?: string;
   createdAt: string;
   updatedAt: string;
 }

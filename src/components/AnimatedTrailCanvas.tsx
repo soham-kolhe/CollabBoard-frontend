@@ -1,10 +1,15 @@
 import { useRef, useEffect } from 'react';
 
 const drawingTools = [
-    { symbol: "✎", color: "#6366f1" },
-    { symbol: "🖌", color: "#a855f7" },
-    { symbol: "🎨", color: "#ec4899" },
-    { symbol: "✒", color: "#10b981" },
+    { symbol: "✎", color: "#6366f1" },   // pencil
+    { symbol: "🖌", color: "#a855f7" },   // brush
+    { symbol: "🎨", color: "#ec4899" },   // palette
+    { symbol: "✒", color: "#10b981" },   // pen
+    { symbol: "🖍", color: "#f59e0b" },   // crayon
+    { symbol: "✏️", color: "#ef4444" },  // classic pencil
+    { symbol: "🧽", color: "#22c55e" },   // sponge (for shading)
+    { symbol: "🧴", color: "#06b6d4" },   // spray (paint spray feel)
+    { symbol: "🪶", color: "#f472b6" },   // feather (calligraphy style)
 ];
 
 const AnimatedTrailCanvas = () => {
@@ -37,7 +42,7 @@ const AnimatedTrailCanvas = () => {
                     symbol: tool.symbol,
                     color: tool.color,
                     opacity: 0.8,
-                    size: Math.random() * 8 + 12,
+                    size: Math.random() * 8 + 22,
                     rotation: Math.random() * Math.PI,
                     velocity: { x: (Math.random() - 0.5) * 1, y: (Math.random() - 0.5) * 1 - 0.5 }
                 });
