@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import TldrawBoard from '../components/TldrawBoard';
@@ -26,6 +26,9 @@ export default function BoardRoom({ user }: BoardRoomProps) {
   const [copyLabel, setCopyLabel] = useState('Copy Room ID');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
+  const [showAdminLeftDialog, setShowAdminLeftDialog] = useState(false);
+  const [errorDialogMsg, setErrorDialogMsg] = useState<string | null>(null);
+  const editorRef = useRef<any>(null);
   const sock = getSocket(user.token);
 
   useEffect(() => {
@@ -50,14 +53,12 @@ export default function BoardRoom({ user }: BoardRoomProps) {
     });
 
     sock.on('admin-left', () => {
-      alert('The admin has left the board. You are being redirected to the dashboard.');
-      navigate('/');
+      setShowAdminLeftDialog(true);
     });
 
     sock.on('error', (msg: string) => {
       console.error(msg);
-      alert(msg);
-      navigate('/');
+      setErrorDialogMsg(msg);
     });
 
     return () => {
@@ -133,6 +134,29 @@ export default function BoardRoom({ user }: BoardRoomProps) {
               Clear Board
             </button>
           )}
+          {canDraw && (
+            <div className="flex items-center gap-1 border border-slate-200 rounded-lg p-0.5 bg-slate-50">
+              <button
+                onClick={() => editorRef.current?.undo()}
+                className="p-1 text-slate-500 hover:text-slate-800 hover:bg-white rounded transition-colors"
+                title="Undo (Ctrl+Z)"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                </svg>
+              </button>
+              <div className="w-px h-4 bg-slate-200" />
+              <button
+                onClick={() => editorRef.current?.redo()}
+                className="p-1 text-slate-500 hover:text-slate-800 hover:bg-white rounded transition-colors"
+                title="Redo (Ctrl+Y)"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
+                </svg>
+              </button>
+            </div>
+          )}
           <button
             onClick={handleCopyLink}
             className="flex items-center gap-1.5 text-xs text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg px-3 py-1.5 font-semibold transition-all"
@@ -142,32 +166,29 @@ export default function BoardRoom({ user }: BoardRoomProps) {
             </svg>
             {copyLabel}
           </button>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-all"
-            title="Toggle collaborators"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-            </svg>
-            {usersInRoom.length > 0 && (
-              <span className="sr-only">{usersInRoom.length} online</span>
-            )}
-          </button>
         </div>
       </header>
 
       {/* ─── Collaborators Sidebar ───────────────────────────── */}
-      {sidebarOpen && (
-        <aside className="absolute top-12 left-4 z-[3000] w-60 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-100">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">
-                Online · {usersInRoom.length}
-              </span>
-            </div>
+      <aside className="absolute top-14 left-4 z-[3000] w-60 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-xl overflow-hidden transition-all">
+        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">
+              Online · {usersInRoom.length}
+            </span>
           </div>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-all"
+            title="Toggle list"
+          >
+            <svg className={`w-4 h-4 transition-transform ${sidebarOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+        {sidebarOpen && (
           <div className="max-h-64 overflow-y-auto">
             {usersInRoom.map((u) => (
               <div
@@ -200,8 +221,8 @@ export default function BoardRoom({ user }: BoardRoomProps) {
               </div>
             ))}
           </div>
-        </aside>
-      )}
+        )}
+      </aside>
 
       {/* ─── tldraw Canvas ──────────────────────────────────── */}
       <div className="absolute inset-0 pt-12">
@@ -211,6 +232,7 @@ export default function BoardRoom({ user }: BoardRoomProps) {
           socket={sock}
           usersInRoom={usersInRoom}
           canDraw={canDraw}
+          onEditorMount={(editor) => { editorRef.current = editor; }}
         />
       </div>
 
@@ -240,6 +262,56 @@ export default function BoardRoom({ user }: BoardRoomProps) {
                 className="px-4 py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors shadow-sm shadow-red-500/20"
               >
                 Yes, Leave
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Admin Left Confirmation Dialog ─────────────────────── */}
+      {showAdminLeftDialog && (
+        <div className="absolute inset-0 z-[4000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <h3 className="text-lg font-bold text-slate-800 mb-2">Admin Left</h3>
+              <p className="text-sm text-slate-600">
+                The admin has left the board. You are being redirected to the dashboard.
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowAdminLeftDialog(false);
+                  navigate('/');
+                }}
+                className="px-4 py-2 text-sm font-semibold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors shadow-sm shadow-indigo-500/20"
+              >
+                Okay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Error / Admin Not Joined Dialog ─────────────────────── */}
+      {errorDialogMsg && (
+        <div className="absolute inset-0 z-[4000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <h3 className="text-lg font-bold text-red-600 mb-2">Access Notice</h3>
+              <p className="text-sm text-slate-600">
+                {errorDialogMsg}
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+              <button
+                onClick={() => {
+                  setErrorDialogMsg(null);
+                  navigate('/');
+                }}
+                className="px-4 py-2 text-sm font-semibold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors shadow-sm shadow-indigo-500/20"
+              >
+                Okay
               </button>
             </div>
           </div>

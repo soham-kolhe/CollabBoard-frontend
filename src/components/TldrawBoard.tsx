@@ -10,9 +10,10 @@ interface TldrawBoardProps {
   socket: Socket;
   usersInRoom: RoomUser[];
   canDraw: boolean;
+  onEditorMount?: (editor: any) => void;
 }
 
-export default function TldrawBoard({ boardId, user, socket, usersInRoom, canDraw }: TldrawBoardProps) {
+export default function TldrawBoard({ boardId, user, socket, usersInRoom, canDraw, onEditorMount }: TldrawBoardProps) {
   const storeRef = useRef<ReturnType<typeof createTLStore> | null>(null);
   const editorRef = useRef<any>(null);
   const isApplyingRemote = useRef(false);
@@ -65,11 +66,14 @@ export default function TldrawBoard({ boardId, user, socket, usersInRoom, canDra
 
     // Clear canvas from server
     socket.on('clear_canvas', () => {
-      const store = storeRef.current;
-      if (!store) return;
+      const editor = editorRef.current;
+      if (!editor) return;
       try {
-        store.clear();
-      } catch { /* ignore */ }
+        const shapeIds = Array.from(editor.getCurrentPageShapeIds());
+        editor.deleteShapes(shapeIds);
+      } catch (e) {
+        console.warn('Failed to clear canvas', e);
+      }
     });
 
     return () => {
@@ -84,6 +88,10 @@ export default function TldrawBoard({ boardId, user, socket, usersInRoom, canDra
     editorRef.current = editor;
     const store = editor.store;
     storeRef.current = store;
+    
+    if (onEditorMount) {
+      onEditorMount(editor);
+    }
 
     // Subscribe to store changes and broadcast to room
     const unsub = store.listen((entry: any) => {

@@ -78,9 +78,9 @@ export default function Login({ onSuccess }: LoginProps) {
               required
               className="peer w-full bg-transparent border border-white rounded-xl px-4 py-3.5 text-black focus:outline-none focus:ring-1 focus:ring-white focus:border-white focus:bg-white/5 transition-all"
             />
-            <label className="absolute left-4 top-3.5 text-grey-400 text-sm transition-all pointer-events-none 
-              peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-xs peer-focus:text-slate-300 peer-focus:bg-slate-950 peer-focus:px-1
-              peer-[:not(:placeholder-shown)]:-top-2.5 peer-[:not(:placeholder-shown)]:left-3 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-slate-300 peer-[:not(:placeholder-shown)]:bg-slate-950 peer-[:not(:placeholder-shown)]:px-1">
+            <label className="absolute left-4 top-3.5 text-black text-sm transition-all pointer-events-none 
+              peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-xs peer-focus:text-black peer-focus:bg-white peer-focus:px-1
+              peer-[:not(:placeholder-shown)]:-top-2.5 peer-[:not(:placeholder-shown)]:left-3 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-black peer-[:not(:placeholder-shown)]:bg-white peer-[:not(:placeholder-shown)]:px-1">
               Username
             </label>
           </div>
@@ -95,9 +95,9 @@ export default function Login({ onSuccess }: LoginProps) {
               required
               className="peer w-full bg-transparent border border-white rounded-xl px-4 py-3.5 text-black focus:outline-none focus:ring-1 focus:ring-white focus:border-white focus:bg-white/5 transition-all"
             />
-            <label className="absolute left-4 top-3.5 text-grey-400 text-sm transition-all pointer-events-none 
-              peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-xs peer-focus:text-slate-300 peer-focus:bg-slate-950 peer-focus:px-1
-              peer-[:not(:placeholder-shown)]:-top-2.5 peer-[:not(:placeholder-shown)]:left-3 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-slate-300 peer-[:not(:placeholder-shown)]:bg-slate-950 peer-[:not(:placeholder-shown)]:px-1">
+            <label className="absolute left-4 top-3.5 text-black text-sm transition-all pointer-events-none 
+              peer-focus:-top-2.5 peer-focus:left-3 peer-focus:text-xs peer-focus:text-black peer-focus:bg-white peer-focus:px-1
+              peer-[:not(:placeholder-shown)]:-top-2.5 peer-[:not(:placeholder-shown)]:left-3 peer-[:not(:placeholder-shown)]:text-xs peer-[:not(:placeholder-shown)]:text-black peer-[:not(:placeholder-shown)]:bg-white peer-[:not(:placeholder-shown)]:px-1">
               Password
             </label>
           </div>
