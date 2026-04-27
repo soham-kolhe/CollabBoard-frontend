@@ -1,6 +1,6 @@
 # CollabBoard - Frontend
 
-React + TypeScript frontend for a real-time collaborative whiteboard. Built with tldraw and Socket.io for sub-100ms multi-user drawing sync.
+React + TypeScript frontend for a real-time collaborative whiteboard. Built with tldraw and Socket.io for low-latency multi-user drawing sync.
 
 ## 📐 Architecture
 
@@ -66,7 +66,9 @@ React 19 • TypeScript • Vite • tldraw • Socket.io-client • Tailwind CS
 
 ```bash
 # 1. Clone & install
-git clone https://github.com/soham-kolhe/CollabBoard-frontend.git && cd CollabBoard-frontend && npm install
+git clone https://github.com/soham-kolhe/CollabBoard-frontend.git
+cd CollabBoard-frontend
+npm install
 
 # 2. Configure environment
 echo "VITE_BACKEND_URL=http://localhost:5000" > .env
